@@ -1,4 +1,4 @@
-name: Deploy .NET API to Azure
+name: Build and deploy .NET API to Azure Web App
 
 on:
   push:
@@ -11,24 +11,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      # 1. Checkout code
+      - name: Checkout code
         uses: actions/checkout@v4
 
+      # 2. Setup .NET
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
 
+      # 🔍 (Optional but helpful) See folder structure
+      - name: List files
+        run: ls -R
+
+      # 3. Restore dependencies (UPDATE PATH IF NEEDED)
       - name: Restore
-        run: dotnet restore
+        run: dotnet restore ./halto.API/halto.API.csproj
 
+      # 4. Build
       - name: Build
-        run: dotnet build --configuration Release --no-restore
+        run: dotnet build ./halto.API/halto.API.csproj --configuration Release --no-restore
 
+      # 5. Publish
       - name: Publish
-        run: dotnet publish -c Release -o ./publish
+        run: dotnet publish ./halto.API/halto.API.csproj -c Release -o ./publish
 
-      - name: Deploy
+      # 6. Deploy to Azure
+      - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'halto-api-backend'
