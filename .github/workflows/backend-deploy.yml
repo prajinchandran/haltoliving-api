@@ -11,36 +11,36 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout
+      # 1. Checkout code
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Setup .NET
+      # 2. Setup .NET (your project is net9.0)
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
 
-      # 3. Verify structure (important for debugging)
-      - name: List files
-        run: ls -R
-
-      # 4. Restore (use solution)
+      # 3. Restore solution
       - name: Restore
         run: dotnet restore Halto.sln
 
-      # 5. Build
+      # 4. Clean (IMPORTANT for CI issues)
+      - name: Clean
+        run: dotnet clean Halto.sln
+
+      # 5. Build solution
       - name: Build
-        run: dotnet build Halto.sln --configuration Release --no-restore
+        run: dotnet build Halto.sln --configuration Release
 
-      # 6. Publish ONLY API project
+      # 6. Publish API project (IMPORTANT PATH)
       - name: Publish
-        run: dotnet publish ./halto.API/halto.API.csproj -c Release -o ./publish
+        run: dotnet publish ./Halto.Api/halto.API.csproj -c Release -o ./publish
 
-      # 7. Deploy
+      # 7. Deploy to Azure
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'halto-api-backend'
+          app-name: 'halto-api-backend'   # 🔥 CHANGE if your app name is different
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_BACKEND }}
           package: ./publish
