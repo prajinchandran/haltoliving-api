@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout code
+      # 1. Checkout
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -19,25 +19,25 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '9.0.x'
 
-      # 🔍 (Optional but helpful) See folder structure
+      # 3. Verify structure (important for debugging)
       - name: List files
         run: ls -R
 
-      # 3. Restore dependencies (UPDATE PATH IF NEEDED)
+      # 4. Restore (use solution)
       - name: Restore
-        run: dotnet restore ./halto.API/halto.API.csproj
+        run: dotnet restore Halto.sln
 
-      # 4. Build
+      # 5. Build
       - name: Build
-        run: dotnet build ./halto.API/halto.API.csproj --configuration Release --no-restore
+        run: dotnet build Halto.sln --configuration Release --no-restore
 
-      # 5. Publish
+      # 6. Publish ONLY API project
       - name: Publish
         run: dotnet publish ./halto.API/halto.API.csproj -c Release -o ./publish
 
-      # 6. Deploy to Azure
+      # 7. Deploy
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
