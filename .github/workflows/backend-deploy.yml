@@ -1,4 +1,4 @@
-name: Build and deploy .NET API to Azure Web App
+name: Deploy API to Azure Web App
 
 on:
   push:
@@ -11,36 +11,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout code
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Setup .NET (your project is net9.0)
-      - name: Setup .NET
+      - name: Set up .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
 
-      # 3. Restore solution
-      - name: Restore
+      - name: Restore dependencies
         run: dotnet restore Halto.sln
 
-      # 4. Clean (IMPORTANT for CI issues)
-      - name: Clean
-        run: dotnet clean Halto.sln
-
-      # 5. Build solution
       - name: Build
-        run: dotnet build Halto.sln --configuration Release
+        run: dotnet build Halto.sln --configuration Release --no-restore
 
-      # 6. Publish API project (IMPORTANT PATH)
       - name: Publish
-        run: dotnet publish ./Halto.Api/halto.API.csproj -c Release -o ./publish
+        run: dotnet publish Halto.Api/halto.API.csproj --configuration Release --no-build --output ./publish
 
-      # 7. Deploy to Azure
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'halto-api-backend'   # 🔥 CHANGE if your app name is different
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_BACKEND }}
+          app-name: ${{ secrets.AZURE_WEBAPP_NAME_API }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_API }}
           package: ./publish
